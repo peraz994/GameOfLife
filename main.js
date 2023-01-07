@@ -842,44 +842,26 @@ function gameOfLife() {
 		height: 30,
 	} );
 	const CELL_SIZE = SVG_HEIGHT / 30;
-	console.log( viewRect );
+	/*
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	!!! 							       !!!
+	!!!    ZUMIRANJE NE RADI KAKO TREBA    !!!
+	!!!	   DODAJ U RENDER SIRINU CELIJE    !!!
+	!!!								       !!!
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	*/
+
 
 	/* FUNCTIONS */
-	function render() {
+	const render = ( () => {
 
-		// Setup
-		const scX = d3.scaleLinear().domain( [ viewRect.x, viewRect.x + viewRect.width ] ).range( [ 0, SVG_WIDTH ] );
-		const scY = d3.scaleLinear().domain( [ viewRect.y, viewRect.y + viewRect.height ] ).range( [ SVG_HEIGHT, 0 ] );
+		let scX = d3.scaleLinear().domain( [ viewRect.x, viewRect.x + viewRect.width ] ).range( [ 0, SVG_WIDTH ] );
+		let scY = d3.scaleLinear().domain( [ viewRect.y, viewRect.y + viewRect.height ] ).range( [ SVG_HEIGHT, 0 ] );
 
-		const data = [];
+		let data = [];
 		game.forEachAlive( cordinate => data.push( cordinate ) );
 
-
-		// Draw Cells
-		SVG.selectAll( 'rect' ).data( data ).enter().append( 'rect' )
-			.attr( 'x', d => scX( d.x ) ).attr( 'y', d => - Number( CELL_SIZE ) + Number( scY( d.y ) ) )
-			.attr( 'width', CELL_SIZE )
-			.attr( 'height', CELL_SIZE )
-			.attr( 'fill', 'red' )
-			.attr( 'stroke', 'red' );
-
-		// Draw Grid Lines
-		SVG.selectAll( 'line.horizontalGrid' ).data( scY.ticks( viewRect.height ) ).enter()
-			.append( 'line' )
-			.attr( 'x1', 0 ).attr( 'y1', d => scY( d ) )
-			.attr( 'x2', SVG_WIDTH ).attr( 'y2', d => scY( d ) )
-			.attr( 'fill', 'none' )
-			.attr( 'stroke', GRID_COLOR )
-			.attr( 'stroke-width', 0.2 );
-		SVG.selectAll( 'line.horizontalGrid' ).data( scX.ticks( viewRect.width ) ).enter()
-			.append( 'line' )
-			.attr( 'x1', d => scX( d ) ).attr( 'y1', 0 )
-			.attr( 'x2', d => scX( d ) ).attr( 'y2', SVG_HEIGHT )
-			.attr( 'fill', 'none' )
-			.attr( 'stroke', GRID_COLOR )
-			.attr( 'stroke-width', 0.2 );
-
-
+		// Event Listeners
 		SVG.on( 'click', ( e ) => {
 
 			let [ x, y ] = d3.pointer( e, SVG.node() );
@@ -918,36 +900,136 @@ function gameOfLife() {
 
 		} );
 
-		SVG.on( 'key', () => {
+		document.addEventListener( 'keypress', ( e ) => {
+
+			switch ( e.key ) {
+
+				case '+':
+					zoomIn();
+					break;
+
+				case '-':
+					zoomOut();
+					break;
+
+			}
 
 
 		} );
 
+		d3.timer( function ( t ) {
 
-	}
+			SVG.selectAll( '.dead-cell' ).each( function () {
 
-	function clear() {
+				this.bogusOpacity *= 0.925;
 
-		SVG.selectAll( '*' ).remove();
+			} ).attr( 'opacity', function () {
+
+				return this.bogusOpacity;
+
+			} );
+
+		} );
+
+		let aliveCells = SVG.selectAll( '.alive-cell' );
+		let deadCells = SVG.selectAll( '.dead-cell' );
+		drawLines();
+		return () => {
+
+			// Setup
+			const scX = d3.scaleLinear().domain( [ viewRect.x, viewRect.x + viewRect.width ] ).range( [ 0, SVG_WIDTH ] );
+			const scY = d3.scaleLinear().domain( [ viewRect.y, viewRect.y + viewRect.height ] ).range( [ SVG_HEIGHT, 0 ] );
+
+			const data = [];
+			game.forEachAlive( cordinate => data.push( cordinate ) );
+
+			console.log( data.length );
+
+			const update = SVG.selectAll( '.alive-cell' ).data( data, d => `${d.x}/${d.y}` );
+			const enter = update.enter();
+			const exit = update.exit();
+
+			enter.append( 'rect' )
+				.attr( 'class', 'alive-cell' )
+				.attr( 'x', d => scX( d.x ) ).attr( 'y', d => - Number( CELL_SIZE ) + Number( scY( d.y ) ) )
+				.attr( 'width', CELL_SIZE )
+				.attr( 'height', CELL_SIZE )
+				.attr( 'fill', 'red' )
+				.attr( 'stroke', 'red' );
+			aliveCells = enter.merge( update );
+
+
+			const deadCells = [];
+			SVG.selectAll( '.dead-cell' ).filter( function ( d ) {
+
+				return data.some( ( { x, y } ) => d.x === x && d.y === y );
+
+			} ).remove(); // trenutno mrtve celije
+			exit.attr( 'class', 'dead-cell' ).attr( 'fill', 'blue' ).attr( 'opacity', 0.5 ).each( function () {
+
+				this.bogusOpacity = 1.0;
+
+			} );
+			// Izbrisi mrtve celije koje su u ovom ciklusu postale zive
+			// Dodaj celije koje su umrle
+
+		};
+
+	} )();
+
+	function drawLines() {
+
+		const scX = d3.scaleLinear().domain( [ viewRect.x, viewRect.x + viewRect.width ] ).range( [ 0, SVG_WIDTH ] );
+		const scY = d3.scaleLinear().domain( [ viewRect.y, viewRect.y + viewRect.height ] ).range( [ SVG_HEIGHT, 0 ] );
+
+
+		// Draw Grid Lines
+		SVG.selectAll( 'line.horizontalGrid' ).data( scY.ticks( viewRect.height ) ).enter()
+			.append( 'line' )
+			.attr( 'x1', 0 ).attr( 'y1', d => scY( d ) )
+			.attr( 'x2', SVG_WIDTH ).attr( 'y2', d => scY( d ) )
+			.attr( 'fill', 'none' )
+			.attr( 'stroke', GRID_COLOR )
+			.attr( 'stroke-width', 0.2 );
+		SVG.selectAll( 'line.horizontalGrid' ).data( scX.ticks( viewRect.width ) ).enter()
+			.append( 'line' )
+			.attr( 'x1', d => scX( d ) ).attr( 'y1', 0 )
+			.attr( 'x2', d => scX( d ) ).attr( 'y2', SVG_HEIGHT )
+			.attr( 'fill', 'none' )
+			.attr( 'stroke', GRID_COLOR )
+			.attr( 'stroke-width', 0.2 );
 
 	}
 
 	function zoomOut() {
 
-		const newHeiht = viewRect.height * 1.1;
-		const newWidth = viewRect.width * 1.1;
-		const dHeight = newHeiht - viewRect.height;
-		const dWidth = newWidth - viewRect.width;
-		viewRect.height = newHeiht;
-		viewRect.width = newWidth;
-		viewRect.x -= dWidth / 2;
-		viewRect.y -= dHeight / 2;
+		const aspectRatio = viewRect.width / viewRect.height;
+		const newHeight = viewRect.height + 1;
+		viewRect = new Rect( {
+			x: viewRect.x - 1,
+			y: viewRect.y - 1,
+			width: aspectRatio * newHeight,
+			height: newHeight
+		} );
+
+	}
+
+	function zoomIn() {
+
+		const aspectRatio = viewRect.width / viewRect.height;
+		const newHeight = viewRect.height - 1;
+		viewRect = new Rect( {
+			x: viewRect.x + 1,
+			y: viewRect.y + 1,
+			width: aspectRatio * newHeight,
+			height: newHeight
+		} );
 
 	}
 
 	window.setInterval( () => {
 
-		clear();
+		// clear();
 		render();
 		//console.log( '---------------------' );
 		//game.forEachAlive( cordinate => console.log( cordinate ) );

@@ -864,6 +864,11 @@ function gameOfLife() {
 		// Event Listeners
 		SVG.on( 'click', ( e ) => {
 
+
+			let scX = d3.scaleLinear().domain( [ viewRect.x, viewRect.x + viewRect.width ] ).range( [ 0, SVG_WIDTH ] );
+			let scY = d3.scaleLinear().domain( [ viewRect.y, viewRect.y + viewRect.height ] ).range( [ SVG_HEIGHT, 0 ] );
+
+
 			let [ x, y ] = d3.pointer( e, SVG.node() );
 			x = Math.floor( Number( scX.invert( x ) ) );
 			y = Math.floor( Number( scY.invert( y ) ) );

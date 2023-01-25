@@ -921,21 +921,26 @@ function gameOfLife() {
 
 			SVG.selectAll( '.dead-cell' ).each( function () {
 
-				this.bogusOpacity *= 0.925;
+				this.bogusOpacity *= 0.999;
 
 			} ).attr( 'opacity', function () {
 
 				return this.bogusOpacity;
 
-			} );
+			} ).filter( function () {
+
+				this.bogusOpacity > 0.99;
+
+			} ).remove();
 
 		} );
 
 		let aliveCells = SVG.selectAll( '.alive-cell' );
 		let deadCells = SVG.selectAll( '.dead-cell' );
-		drawLines();
+
 		return () => {
 
+			drawLines();
 			// Setup
 			const scX = d3.scaleLinear().domain( [ viewRect.x, viewRect.x + viewRect.width ] ).range( [ 0, SVG_WIDTH ] );
 			const scY = d3.scaleLinear().domain( [ viewRect.y, viewRect.y + viewRect.height ] ).range( [ SVG_HEIGHT, 0 ] );
@@ -949,6 +954,7 @@ function gameOfLife() {
 			const enter = update.enter();
 			const exit = update.exit();
 
+			update.attr( 'x', d => scX( d.x ) ).attr( 'y', d => - Number( CELL_SIZE ) + Number( scY( d.y ) ) );
 			enter.append( 'rect' )
 				.attr( 'class', 'alive-cell' )
 				.attr( 'x', d => scX( d.x ) ).attr( 'y', d => - Number( CELL_SIZE ) + Number( scY( d.y ) ) )
@@ -960,16 +966,18 @@ function gameOfLife() {
 
 
 			const deadCells = [];
-			SVG.selectAll( '.dead-cell' ).filter( function ( d ) {
+			SVG.selectAll( '.dead-cell' ).attr( 'x', d => scX( d.x ) ).attr( 'y', d => - Number( CELL_SIZE ) + Number( scY( d.y ) ) ).filter( function ( d ) {
 
 				return data.some( ( { x, y } ) => d.x === x && d.y === y );
 
 			} ).remove(); // trenutno mrtve celije
-			exit.attr( 'class', 'dead-cell' ).attr( 'fill', 'blue' ).attr( 'opacity', 0.5 ).each( function () {
+			exit.attr( 'class', 'dead-cell' ).attr( 'fill', 'blue' ).attr( 'opacity', 0.5 )
+				.attr( 'x', d => scX( d.x ) ).attr( 'y', d => - Number( CELL_SIZE ) + Number( scY( d.y ) ) )
+				.each( function () {
 
-				this.bogusOpacity = 1.0;
+					this.bogusOpacity = 1.0;
 
-			} );
+				} );
 			// Izbrisi mrtve celije koje su u ovom ciklusu postale zive
 			// Dodaj celije koje su umrle
 
@@ -978,6 +986,8 @@ function gameOfLife() {
 	} )();
 
 	function drawLines() {
+
+		SVG.selectAll( 'line' ).remove();
 
 		const scX = d3.scaleLinear().domain( [ viewRect.x, viewRect.x + viewRect.width ] ).range( [ 0, SVG_WIDTH ] );
 		const scY = d3.scaleLinear().domain( [ viewRect.y, viewRect.y + viewRect.height ] ).range( [ SVG_HEIGHT, 0 ] );

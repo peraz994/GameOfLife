@@ -921,7 +921,7 @@ function gameOfLife() {
 
 			SVG.selectAll( '.dead-cell' ).each( function () {
 
-				this.bogusOpacity *= 0.999;
+				this.bogusOpacity *= 0.98;
 
 			} ).attr( 'opacity', function () {
 

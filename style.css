@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Press Start 2P', sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -13,6 +13,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+svg {
+  background-color: black;
+  border-radius: 5px;
 }
 
 a {
@@ -38,9 +43,6 @@ h1 {
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 
   display: flex;
@@ -84,11 +86,6 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-svg {
-  background-color: #242424;
-  border-radius: 5px;
 }
 
 @media (prefers-color-scheme: light) {

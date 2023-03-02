@@ -8,16 +8,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <div id="app">
-      <h1>Game Of Life</h1>
-
+      <div class="welcome-page">
+        <h1 class="typewriter">Game Of Life</h1>
+        <p class="press-to-continue">>> <span>Press to continue</span> &#60;&#60;</p>
+      </div>
+      <!--
       <svg id="svg-reder-target" style="width: 100vw; height: 600px;"></svg>
       <div style="background: dimgrey;" id="number-of-generations"></div>
       <button style="background: blueviolet;" id="play-pause-button">PLAY/PAUSE</button>
       <input type="range" id="time-speed"
       min="0" max="100">
+      -->
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

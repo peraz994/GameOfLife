@@ -25,14 +25,30 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
+}
+
+input, .button, .press-to-continue, a, #modal-close {
+  cursor: url('/cursor(23).cur'), auto;
 }
 
 
 /**
+ * LOADING PAGE 
+ */
+ .loading-page {
+  min-width: 100vw;
+  min-height: 100vh;
+  background-color: black;
+ }
+
+/**
  * WELCOME PAGE
  */
+ /* 1c1a1a background, default brave dark mode */
 .welcome-page {
-  background-color: #1c1a1a;
+  background-color: black;
+  background-attachment: fixed;
   color: white;
 
   text-align: center;
@@ -55,14 +71,14 @@ body {
 .typewriter::after {
   content: '';
   position: absolute;
-  top: 0;
+  top: -3px;
   right: 0;
   bottom: 0;
   left: 0;
 }
 
 .typewriter::before {
-  background-color: #1c1a1a;
+  background-color: black;
   animation: typewriterr 2s steps(12) 0.25s forwards;
 }
 
@@ -119,15 +135,46 @@ body {
  * GAME PAGE
  */
 .svg-game {
-  background-color: #1c1a1a;
+  background-color: black;
 }
 
 svg {
   background-color: black;
-  border-radius: 5px;
 }
 
 h1 {
   font-size: 2em;
   line-height: 1.1;
+}
+
+.link:hover {
+  border-bottom: 0.2em solid white;
+}
+
+.slider {
+  -webkit-appearance: none;
+  background: white;
+  outline: none;
+  height: 0.4rem;
+}
+
+
+/* for chrome/safari */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #000;
+  height: 1.2rem;
+  width: 0.5rem;
+  border: 2px solid white;
+  border-radius: 0px;
+}
+
+/* for firefox */
+.slider::-moz-range-thumb {
+  background: #000;
+  border: 2px solid white;
+  border-radius: 0px;
+  width: 0.5rem;
+  height: 1.2rem;
 }
